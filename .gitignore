@@ -1,8 +1,12 @@
 eclipse
 .gradle
 build
-MineCapes.ipr
-MineCapes.iml
-MineCapes.iws
+Tnw-Cape-mod.ipr
+Tnw-Cape-mod.iml
+Tnw-Cape-mod.iws
 run
 build
+classes
+out
+logs
+mods
