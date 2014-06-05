@@ -1,3 +1,5 @@
 eclipse
 .gradle
 build
+.idea
+MineCapes.iml
