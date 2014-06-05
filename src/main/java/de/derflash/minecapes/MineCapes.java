@@ -35,8 +35,8 @@ import net.minecraft.util.ResourceLocation;
 @Mod(modid = MineCapes.MODID, version = MineCapes.VERSION)
 public class MineCapes
 {
-    public static final String MODID = "minecapes";
-    public static final String VERSION = "2.1-SNAPSHOT";
+    public static final String MODID = "TNW_cape_mod";
+    public static final String VERSION = "Pre-alpha";
     
     int tick = 0;
     int sweep = 20;

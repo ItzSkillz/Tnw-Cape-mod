@@ -11,18 +11,18 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.1-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
     }
 }
 
 apply plugin: 'forge'
 
-version = "2.1-SNAPSHOT"
+version = "0.1"
 group= "de.derflash.minecapes" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "minecapes"
+archivesBaseName = "Tnw_Cape_Mod"
 
 minecraft {
-    version = "1.7.2-10.12.0.985"
+    version = "1.7.2-10.12.1.1060"
 }
 processResources
 {
