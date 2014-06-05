@@ -165,13 +165,14 @@ public class MineCapes
         }.start();
 
     }
-    
+    /*
     private void handleMCMessage(String message) {
         System.out.println("[MineCapes] Got a message: " + message);
         if (message.equalsIgnoreCase("reloadCapes")) {
             shouldClear = true;
         }
     }
+    */
     
     private boolean iCanHazHDMod() {
         if (_iCanHazHDMod == -1) {
@@ -250,7 +251,6 @@ public class MineCapes
                        }
                        
                    }
-
             }
             
             // run cloak find in another thread
@@ -301,7 +301,7 @@ public class MineCapes
 
                     con.disconnect();
                     
-                } catch (Exception e) {}
+                  } catch (Exception e) {}
                   
 
                 if (found != null) break;
@@ -323,11 +323,7 @@ public class MineCapes
                    
                    checked.put(playerName, object);
                    System.out.println("[MineCapes] Found cloak: " + found);
-
                }
-               
-               
-           }        
+        }
     }
-
 }
