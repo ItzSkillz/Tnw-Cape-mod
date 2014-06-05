@@ -17,7 +17,7 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "0.1"
+version = "0.1.5"
 group= "de.derflash.minecapes" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "Tnw_Cape_Mod"
 
@@ -40,7 +40,7 @@ processResources
     }
 }
 
-jar { classifier = 'universal' }
+jar { classifier = '' }
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
