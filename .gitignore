@@ -1,7 +1,7 @@
 eclipse
-gradle
-.gradlew
-build
+gradle/
+.gradle
+build/
 
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
 
