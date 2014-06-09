@@ -1,4 +1,4 @@
-package de.derflash.minecapes;
+package com.github.TnwCapeMod;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -32,12 +32,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.src.*;
 import net.minecraft.util.ResourceLocation;
 
-@Mod(modid = MineCapes.MODID, version = MineCapes.VERSION)
-public class MineCapes
-{
+@Mod(modid = Tnw_Cape_Mod.MODID, version = Tnw_Cape_Mod.VERSION)
+public class Tnw_Cape_Mod {
     public static final String MODID = "TNW_cape_mod";
-    public static final String VERSION = "Pre-alpha";
-    
+    public static final String VERSION = "Beta";
+
     int tick = 0;
     int sweep = 20;
 
@@ -48,19 +47,19 @@ public class MineCapes
     private ArrayList<String> ignored = new ArrayList<String>();
     private ArrayList<String> players = new ArrayList<String>();
 
-    
+
     private String stdCapesDir    = "http://www.minecapes.net/players/cape/";
     private String hdCapesDir    = "http://www.minecapes.net/players/hdcape/";
-    
+
     boolean checking = false;
     boolean shouldClear = false;
     int _iCanHazHDMod = -1;
-    
+
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
         findCapesDirectories();
-        
+
         FMLCommonHandler.instance().bus().register(this);
     }
 
@@ -70,15 +69,15 @@ public class MineCapes
             updateCloakURLs();
         }
     }
-    
+
     /*
      * Removed for now due to update to 1.7.x
-     * 
+     *
     // ModLoader @ MC 1.3+
     public void clientConnect() {
         checkForUpdate();
     }
-    
+
     // ModLoader @ MC 1.3+
     public void clientCustomPayload(NetClientHandler clientHandler, Packet250CustomPayload packet250custompayload) {
         if (packet250custompayload.channel.equalsIgnoreCase("minecapes")) {
@@ -86,11 +85,11 @@ public class MineCapes
         }
     }
     */
-    
+
     //////////////////////////////////////////
     ///// private stuff
     //////////////////////////////////////////
-    
+
     private void checkForUpdate() {
         System.out.println("[MineCapes] Checking for a new MineCapes Version now...");
 
@@ -98,12 +97,12 @@ public class MineCapes
             public void run() {
                 try {
                     URL dirList = new URL("http://www.minecapes.net/version");
-                        BufferedReader in = new BufferedReader(new InputStreamReader(dirList.openStream()));
+                    BufferedReader in = new BufferedReader(new InputStreamReader(dirList.openStream()));
 
                     final String inputLine = in.readLine();
                     if (inputLine != null && !inputLine.equals(VERSION)) {
                         System.out.println("There's a new version of MineCapes (Version "+inputLine+")! Go get it from: minecapes.net/install");
-                        
+
                         new java.util.Timer().schedule(new TimerTask() {
                             @Override
                             public void run() {
@@ -123,29 +122,29 @@ public class MineCapes
             }
         }.start();
     }
-    
+
 
     private void clearCloaks(List<EntityPlayer> playerEntities, Minecraft mc) {
-           System.out.println("[MineCapes] Clearing capes...");
-           
+        System.out.println("[MineCapes] Clearing capes...");
+
         checked.clear();
         ignored.clear();
     }
-    
+
     private void findCapesDirectories() {
         new Thread() {
             public void run() {
-                   System.out.println("[MineCapes] Searching for capes directories ...");
-                   
+                System.out.println("[MineCapes] Searching for capes directories ...");
+
                 ArrayList<String> _capeDIRs = new ArrayList<String>();
                 try {
                     URL dirList = new URL("http://www.minecapes.net/capesDirectory.list");
-                        BufferedReader in = new BufferedReader(new InputStreamReader(dirList.openStream()));
+                    BufferedReader in = new BufferedReader(new InputStreamReader(dirList.openStream()));
 
                     String inputLine;
                     while ((inputLine = in.readLine()) != null) _capeDIRs.add(inputLine);
                     in.close();
-                    
+
                 } catch (Exception e) {
                     System.out.println("[MineCapes] External cape directories could not be found. Try again on restart...");
                 }
@@ -173,7 +172,7 @@ public class MineCapes
         }
     }
     */
-    
+
     private boolean iCanHazHDMod() {
         if (_iCanHazHDMod == -1) {
             if (new ImageBufferDownload().parseUserSkin(new BufferedImage(128,64,BufferedImage.TYPE_INT_RGB)).getWidth() == 64) {
@@ -183,22 +182,22 @@ public class MineCapes
             }
         }
         return (_iCanHazHDMod == 1 ? true : false);
-        
+
     }
-    
+
     private void updateCloakURLs() {
         Minecraft mc = Minecraft.getMinecraft();
-        
+
         if (capeDIRs == null || capeDIRs.isEmpty()) return;
         if (checking) return;
-        
+
         if (tick >= sweep) {
             tick = 0;
-            
+
             if (mc == null || mc.theWorld == null || mc.theWorld.playerEntities == null || mc.renderEngine == null) {
                 return;
             }
-            
+
             final List<EntityPlayer> playerEntities = mc.theWorld.playerEntities; //get the players
 
             // clear cloaks if requested
@@ -208,51 +207,51 @@ public class MineCapes
                 tick = sweep;
                 return;
             }
-            
+
             // apply found cloaks / find players
             players.clear();
             for (EntityPlayer entityplayer : playerEntities) {
-                   String playerName = entityplayer.getCommandSenderName();
-                   players.add(playerName);
-                   
-                   ThreadDownloadImageData usersCape = checked.get(playerName);
-                   
-                   if (usersCape != null) {
+                String playerName = entityplayer.getCommandSenderName();
+                players.add(playerName);
 
-                       AbstractClientPlayer aPlayer = (AbstractClientPlayer) entityplayer;
-                       ThreadDownloadImageData currentCape = null;
-                       Field downloadImageCape = null;
-                    
-                       // make cloak resource field accessible and get current cape
-                       try {
-                           downloadImageCape = AbstractClientPlayer.class.getDeclaredField("field_110315_c");
-                           
-                           if (!downloadImageCape.isAccessible()) downloadImageCape.setAccessible(true);
-                           
-                           currentCape = (ThreadDownloadImageData) downloadImageCape.get(aPlayer);
-                           
-                       } catch (Exception e) {
-                    	   e.printStackTrace();
-                       }
-                    
-                    
-                       // check if needs update
-                       if (downloadImageCape != null && usersCape != currentCape) {
+                ThreadDownloadImageData usersCape = checked.get(playerName);
 
-                           System.out.println("[MineCapes] Applying (new) cape for: " + playerName);
+                if (usersCape != null) {
 
-                           // set as users cloak resource
-                           try {
-                               downloadImageCape.set(aPlayer, usersCape);
-                           } catch (Exception e) {
-                        	   e.printStackTrace();
-                           }
-                           
-                       }
-                       
-                   }
+                    AbstractClientPlayer aPlayer = (AbstractClientPlayer) entityplayer;
+                    ThreadDownloadImageData currentCape = null;
+                    Field downloadImageCape = null;
+
+                    // make cloak resource field accessible and get current cape
+                    try {
+                        downloadImageCape = AbstractClientPlayer.class.getDeclaredField("field_110315_c");
+
+                        if (!downloadImageCape.isAccessible()) downloadImageCape.setAccessible(true);
+
+                        currentCape = (ThreadDownloadImageData) downloadImageCape.get(aPlayer);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+
+                    // check if needs update
+                    if (downloadImageCape != null && usersCape != currentCape) {
+
+                        System.out.println("[MineCapes] Applying (new) cape for: " + playerName);
+
+                        // set as users cloak resource
+                        try {
+                            downloadImageCape.set(aPlayer, usersCape);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+
+                }
             }
-            
+
             // run cloak find in another thread
             checking = true;
             Thread checkThread = new Thread() {
@@ -263,32 +262,32 @@ public class MineCapes
             };
             checkThread.setPriority(Thread.MIN_PRIORITY);
             checkThread.start();
-            
-           } else {
-               tick++;
-           }
-           
+
+        } else {
+            tick++;
+        }
+
     }
-    
+
     private String removeColorFromString(String string) {
         string = string.replaceAll("\\xa4\\w", "");
         string = string.replaceAll("\\xa7\\w", "");
-        
+
         return string;
     }
 
-    protected void checkCloakURLs(List<String> playerNames) {        
-        for (String playerName : playerNames) {            
-               
-               if (ignored.contains(playerName) || checked.containsKey(playerName)) continue;
-               
-               System.out.println("[MineCapes] Found new player: " + playerName);
-               
-               String found = null;
-               for (String capeURLcheck : capeDIRs) {
+    protected void checkCloakURLs(List<String> playerNames) {
+        for (String playerName : playerNames) {
 
-                   String url = capeURLcheck + removeColorFromString(playerName) + ".png";
-                  try {
+            if (ignored.contains(playerName) || checked.containsKey(playerName)) continue;
+
+            System.out.println("[MineCapes] Found new player: " + playerName);
+
+            String found = null;
+            for (String capeURLcheck : capeDIRs) {
+
+                String url = capeURLcheck + removeColorFromString(playerName) + ".png";
+                try {
                     HttpURLConnection con =    (HttpURLConnection) new URL(url).openConnection();
                     con.setRequestMethod("HEAD");
                     con.setRequestProperty ( "User-agent", "MineCapes " + VERSION);
@@ -296,34 +295,34 @@ public class MineCapes
                     con.setConnectTimeout(2000);
                     con.setUseCaches(false);
                     con.setFollowRedirects(false);
-                    
+
                     if (con.getResponseCode() == HttpURLConnection.HTTP_OK) found = url;
 
                     con.disconnect();
-                    
-                  } catch (Exception e) {}
-                  
+
+                } catch (Exception e) {}
+
 
                 if (found != null) break;
-               }
-               
-               if (found == null) {
-                   ignored.add(playerName);
-                   System.out.println("[MineCapes] Could not find any cloak, ignoring ...");
-                   
-               } else {
-                   AbstractClientPlayer aPlayer = (AbstractClientPlayer) Minecraft.getMinecraft().theWorld.getPlayerEntityByName(playerName);
+            }
 
-                   // get cloak
-                   ResourceLocation resourcePackCloak = aPlayer.getLocationCape(aPlayer.getCommandSenderName());
-                
-                   TextureManager texturemanager = Minecraft.getMinecraft().getTextureManager();
-                   ThreadDownloadImageData object = new ThreadDownloadImageData(found, null, null);
-                   texturemanager.loadTexture(resourcePackCloak, (ITextureObject)object);
-                   
-                   checked.put(playerName, object);
-                   System.out.println("[MineCapes] Found cloak: " + found);
-               }
+            if (found == null) {
+                ignored.add(playerName);
+                System.out.println("[MineCapes] Could not find any cloak, ignoring ...");
+
+            } else {
+                AbstractClientPlayer aPlayer = (AbstractClientPlayer) Minecraft.getMinecraft().theWorld.getPlayerEntityByName(playerName);
+
+                // get cloak
+                ResourceLocation resourcePackCloak = aPlayer.getLocationCape(aPlayer.getCommandSenderName());
+
+                TextureManager texturemanager = Minecraft.getMinecraft().getTextureManager();
+                ThreadDownloadImageData object = new ThreadDownloadImageData(found, null, null);
+                texturemanager.loadTexture(resourcePackCloak, (ITextureObject)object);
+
+                checked.put(playerName, object);
+                System.out.println("[MineCapes] Found cloak: " + found);
+            }
         }
     }
 }
