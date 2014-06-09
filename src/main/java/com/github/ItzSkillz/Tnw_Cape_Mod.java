@@ -1,4 +1,4 @@
-package com.github.TnwCapeMod;
+package com.github.ItzSkillz;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -35,7 +35,7 @@ import net.minecraft.util.ResourceLocation;
 @Mod(modid = Tnw_Cape_Mod.MODID, version = Tnw_Cape_Mod.VERSION)
 public class Tnw_Cape_Mod {
     public static final String MODID = "TNW_cape_mod";
-    public static final String VERSION = "Beta";
+    public static final String VERSION = "0.5-Beta";
 
     int tick = 0;
     int sweep = 20;
@@ -91,7 +91,7 @@ public class Tnw_Cape_Mod {
     //////////////////////////////////////////
 
     private void checkForUpdate() {
-        System.out.println("[MineCapes] Checking for a new MineCapes Version now...");
+        System.out.println("[TNW] Checking for a new MineCapes Version now...");
 
         new Thread() {
             public void run() {
@@ -101,14 +101,14 @@ public class Tnw_Cape_Mod {
 
                     final String inputLine = in.readLine();
                     if (inputLine != null && !inputLine.equals(VERSION)) {
-                        System.out.println("There's a new version of MineCapes (Version "+inputLine+")! Go get it from: minecapes.net/install");
+                        System.out.println("[TNW] There's a new version of TNW cape mod (Version "+inputLine+")! Go get it from: https://minez-nightswatch.com/mod");
 
                         new java.util.Timer().schedule(new TimerTask() {
                             @Override
                             public void run() {
                                 for (int i = 0; i < 10; i++) {
                                     if (Minecraft.getMinecraft().inGameHasFocus && Minecraft.getMinecraft().thePlayer != null) {
-                                        Minecraft.getMinecraft().thePlayer.sendChatMessage("There's a new version of MineCapes (Version "+inputLine+")! Go get it from: minecapes.net/install");
+                                        Minecraft.getMinecraft().thePlayer.sendChatMessage("There's a new version of TNW cape mod (Version \"+inputLine+\")! Go get it from: https://minez-nightswatch.com/mod");
                                         try { Thread.sleep(1000); } catch (InterruptedException e) {}
                                         return;
                                     }
@@ -116,7 +116,7 @@ public class Tnw_Cape_Mod {
                             }}, 5000);
                     }
                 } catch (Exception e) {
-                    System.out.println("[MineCapes] Could not check for a new MineCapes Version :-(");
+                    System.out.println("[TNW] Could not check for a new Cape mod Version :-(");
 
                 }
             }
@@ -125,7 +125,7 @@ public class Tnw_Cape_Mod {
 
 
     private void clearCloaks(List<EntityPlayer> playerEntities, Minecraft mc) {
-        System.out.println("[MineCapes] Clearing capes...");
+        System.out.println("[TWN] Clearing capes...");
 
         checked.clear();
         ignored.clear();
@@ -134,7 +134,7 @@ public class Tnw_Cape_Mod {
     private void findCapesDirectories() {
         new Thread() {
             public void run() {
-                System.out.println("[MineCapes] Searching for capes directories ...");
+                System.out.println("[TNW] Searching for capes directories ...");
 
                 ArrayList<String> _capeDIRs = new ArrayList<String>();
                 try {
@@ -146,18 +146,18 @@ public class Tnw_Cape_Mod {
                     in.close();
 
                 } catch (Exception e) {
-                    System.out.println("[MineCapes] External cape directories could not be found. Try again on restart...");
+                    System.out.println("[TNW] External cape directories could not be found. Try again on restart...");
                 }
 
                 // add default dir
                 _capeDIRs.add(0, stdCapesDir);
 
                 if (iCanHazHDMod()) {
-                    System.out.println("[MineCapes] Found HD Patch! Adding HD directory.");
+                    System.out.println("[TNW] Found HD Patch! Adding HD directory.");
                     _capeDIRs.add(0, hdCapesDir);
                 }
 
-                System.out.println("[MineCapes] " + _capeDIRs.size() + " directories loaded!");
+                System.out.println("[TNW] " + _capeDIRs.size() + " directories loaded!");
                 capeDIRs = _capeDIRs;
             }
 
@@ -166,7 +166,7 @@ public class Tnw_Cape_Mod {
     }
     /*
     private void handleMCMessage(String message) {
-        System.out.println("[MineCapes] Got a message: " + message);
+        System.out.println("[TNW] Got a message: " + message);
         if (message.equalsIgnoreCase("reloadCapes")) {
             shouldClear = true;
         }
@@ -238,7 +238,7 @@ public class Tnw_Cape_Mod {
                     // check if needs update
                     if (downloadImageCape != null && usersCape != currentCape) {
 
-                        System.out.println("[MineCapes] Applying (new) cape for: " + playerName);
+                        System.out.println("[TNW] Applying (new) cape for: " + playerName);
 
                         // set as users cloak resource
                         try {
@@ -281,7 +281,7 @@ public class Tnw_Cape_Mod {
 
             if (ignored.contains(playerName) || checked.containsKey(playerName)) continue;
 
-            System.out.println("[MineCapes] Found new player: " + playerName);
+            System.out.println("[TNW] Found new player: " + playerName);
 
             String found = null;
             for (String capeURLcheck : capeDIRs) {
@@ -308,7 +308,7 @@ public class Tnw_Cape_Mod {
 
             if (found == null) {
                 ignored.add(playerName);
-                System.out.println("[MineCapes] Could not find any cloak, ignoring ...");
+                System.out.println("[TNW] Could not find any cloak, ignoring ...");
 
             } else {
                 AbstractClientPlayer aPlayer = (AbstractClientPlayer) Minecraft.getMinecraft().theWorld.getPlayerEntityByName(playerName);
@@ -321,7 +321,7 @@ public class Tnw_Cape_Mod {
                 texturemanager.loadTexture(resourcePackCloak, (ITextureObject)object);
 
                 checked.put(playerName, object);
-                System.out.println("[MineCapes] Found cloak: " + found);
+                System.out.println("[TNW] Found cloak: " + found);
             }
         }
     }
