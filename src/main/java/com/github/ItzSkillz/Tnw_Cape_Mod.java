@@ -48,8 +48,8 @@ public class Tnw_Cape_Mod {
     private ArrayList<String> players = new ArrayList<String>();
 
 
-    private String stdCapesDir    = "http://www.minecapes.net/players/cape/";
-    private String hdCapesDir    = "http://www.minecapes.net/players/hdcape/";
+    private String stdCapesDir    = "https://minez-nightswatch.com/mod/cape?user=";
+    private String hdCapesDir    = "https://minez-nightswatch.com/mod/cape?user=";
 
     boolean checking = false;
     boolean shouldClear = false;
@@ -70,57 +70,12 @@ public class Tnw_Cape_Mod {
         }
     }
 
-    /*
-     * Removed for now due to update to 1.7.x
-     *
-    // ModLoader @ MC 1.3+
-    public void clientConnect() {
-        checkForUpdate();
-    }
-
-    // ModLoader @ MC 1.3+
-    public void clientCustomPayload(NetClientHandler clientHandler, Packet250CustomPayload packet250custompayload) {
-        if (packet250custompayload.channel.equalsIgnoreCase("minecapes")) {
-            handleMCMessage(new String(packet250custompayload.data));
-        }
-    }
-    */
-
     //////////////////////////////////////////
     ///// private stuff
     //////////////////////////////////////////
 
     private void checkForUpdate() {
-        System.out.println("[TNW] Checking for a new MineCapes Version now...");
-
-        new Thread() {
-            public void run() {
-                try {
-                    URL dirList = new URL("http://www.minecapes.net/version");
-                    BufferedReader in = new BufferedReader(new InputStreamReader(dirList.openStream()));
-
-                    final String inputLine = in.readLine();
-                    if (inputLine != null && !inputLine.equals(VERSION)) {
-                        System.out.println("[TNW] There's a new version of TNW cape mod (Version "+inputLine+")! Go get it from: https://minez-nightswatch.com/mod");
-
-                        new java.util.Timer().schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                for (int i = 0; i < 10; i++) {
-                                    if (Minecraft.getMinecraft().inGameHasFocus && Minecraft.getMinecraft().thePlayer != null) {
-                                        Minecraft.getMinecraft().thePlayer.sendChatMessage("There's a new version of TNW cape mod (Version \"+inputLine+\")! Go get it from: https://minez-nightswatch.com/mod");
-                                        try { Thread.sleep(1000); } catch (InterruptedException e) {}
-                                        return;
-                                    }
-                                }
-                            }}, 5000);
-                    }
-                } catch (Exception e) {
-                    System.out.println("[TNW] Could not check for a new Cape mod Version :-(");
-
-                }
-            }
-        }.start();
+        // To be removed.
     }
 
 
