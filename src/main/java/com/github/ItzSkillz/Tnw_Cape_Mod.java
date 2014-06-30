@@ -48,8 +48,8 @@ public class Tnw_Cape_Mod {
     private ArrayList<String> players = new ArrayList<String>();
 
 
-    private String stdCapesDir    = "https://minez-nightswatch.com/mod/cape?user=";
-    private String hdCapesDir    = "https://minez-nightswatch.com/mod/cape?user=";
+    private String stdCapesDir    = "http://minez-nightswatch.com/mod/cape?user=";
+    private String hdCapesDir    = "http://minez-nightswatch.com/mod/cape?user=";
 
     boolean checking = false;
     boolean shouldClear = false;
