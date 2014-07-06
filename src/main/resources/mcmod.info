@@ -1,16 +1,14 @@
-[
 {
-  "modid": "TNW_cape_mod",
-  "name": "TNW_cape_mod",
-  "description": "The official TNW cape mod",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "url": "",
-  "updateUrl": "",
-  "authors": ["DerFlash, Falling_Dutchman and NavarrB"],
-  "credits": "https://minez-nightswatch.com",
-  "logoFile": "",
-  "screenshots": [],
-  "dependencies": []
+    "modListVersion": 2,
+    "modList": [{
+        "modid": "TNW_cape_mod",
+        "name": "Night's Watch Capes",
+        "description": "The official cape mod of The Night's Watch, used to identify members and officers",
+        "version": "${version}",
+        "mcversion": "${mcversion}",
+        "url": "https://www.minez-nightswatch.com/",
+        "authorList": ["DerFlash", "Falling_Dutchman", "Navarr"],
+        "credits": "Owed in it's entirety to the wonderful work of DerFlash of Minecapes.net",
+        "logoFile": "nightswatch_logo.png"
+    }]
 }
-]
