@@ -11,7 +11,7 @@ import com.mumfrey.liteloader.core.LiteLoader;
 import com.mumfrey.liteloader.modconfig.ConfigStrategy;
 import com.mumfrey.liteloader.modconfig.ExposableOptions;
 
-@ExposableOptions(strategy = ConfigStrategy.Versioned, filename="TNW_cape_mod.json")
+@ExposableOptions(strategy = ConfigStrategy.Versioned, filename="cape.json")
 public class LiteModTnw_Cape_Mod implements Tickable{
 
 	@Override
