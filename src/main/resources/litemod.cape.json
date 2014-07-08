@@ -1,9 +1,0 @@
-{
-    "name": "${ant.project.name}",
-    "mcversion": "${litemodversion}",
-    "revision": "${build.number}",
-    "author": "${author}",
-    "description": "The official cape mod of The Night's Watch, used to identify members and officers."
-}
-
- 
