@@ -24,10 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-@Mod(modid = Tnw_Cape_Mod.MODID, version = Tnw_Cape_Mod.VERSION)
 public class Tnw_Cape_Mod {
-    public static final String MODID = "TNW_cape_mod";
-    public static final String VERSION = "1.0.0";
 
     int tick = 0;
     int sweep = 20;
