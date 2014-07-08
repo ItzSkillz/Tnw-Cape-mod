@@ -1,35 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<!-- This file is part of the LiteLoader Example mod and is provided for you to use as a base    -->
-<!-- for your own build scripts. This file is provided with ABSOLUTELY NO WARRANTY and I won't   -->
-<!-- be responsible for any failures caused by using this script such as premature hair loss or  -->
-<!-- accidental triggering of global thermonuclear warfare.                                      -->
-<!--                                                                                             -->
-<!-- Like the liteloader build script, this build script requires the clean MCP sources to be    -->
-<!-- located in MCPDIR/src/mcp and NOT in MCPDIR/src/minecraft: that folder will be DELETED by   -->
-<!-- this script and therefore anything contained within it will be lost, so if you're working   -->
-<!-- in a "traditional" MCP setup then DO NOT RUN THIS SCRIPT WITHOUT BACKING UP YOUR WORK!      -->
-<!--                                                                                             -->
-<!-- The file is well commented and you should have a read through this script before making     -->
-<!-- changes to ensure that you know how it works.                                               -->
-
 <project name="examplemod" basedir="." default="main">
 
     <!-- The version of your mod, can be any string as long as it's valid as part of a file name -->
     <!-- and should match the version string returned by your mod.                               -->
-    <property name="version"        value="0.0.0" />
+    <property name="version"        value="1.0.0" />
 
     <!-- The Minecraft version the mod is for, appended to the output file name for reference -->
-    <property name="mcversion"      value="1.7.10" />
+    <property name="mcversion"      value="1.7.2" />
 
     <!-- The version inserted into the mod metadata to tell the loader what version of MC this mod is for -->
-    <property name="litemodversion" value="1.7.10" />
+    <property name="litemodversion" value="1.7.2_04" />
 
     <!-- Your name, this gets written into the mod metadata and jar metadata -->
-    <property name="author"         value="Mumfrey" />
+    <property name="author"         value="Falling_Dutchman" />
 
     <!-- The name of the eclipse project to build, for upstream dependencies see the targets below -->
-    <property name="project"        value="ExampleMod" />
+    <property name="project"        value="TheNightsWatchCapeMod" />
 
     <!-- The upstream MD5 set to use when outputting your mod classes, usually liteloader -->
     <property name="md5set"         value="liteloader" />
