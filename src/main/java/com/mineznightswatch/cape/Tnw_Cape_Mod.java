@@ -25,9 +25,10 @@ import java.util.HashMap;
 import java.util.List;
 
 @Mod(modid = Tnw_Cape_Mod.MODID, version = Tnw_Cape_Mod.VERSION)
-public class Tnw_Cape_Mod {
+public class Tnw_Cape_Mod
+{
     public static final String MODID = "TNW_cape_mod";
-    public static final String VERSION = "1.0.0";
+    public static final String VERSION = "1.7.10-1.0.0";
 
     int tick = 0;
     int sweep = 20;
@@ -44,21 +45,25 @@ public class Tnw_Cape_Mod {
     boolean shouldClear = false;
 
     @EventHandler
-    public void init(FMLInitializationEvent event) {
+    public void init(FMLInitializationEvent event)
+    {
         findCapesDirectories();
 
         FMLCommonHandler.instance().bus().register(this);
     }
 
     @SubscribeEvent
-    public void tick(ClientTickEvent event) {
-        if (event.phase == Phase.END) {
+    public void tick(ClientTickEvent event)
+    {
+        if (event.phase == Phase.END)
+        {
             updateCloakURLs();
         }
     }
 
 
-    private void clearCloaks(List<EntityPlayer> playerEntities, Minecraft mc) {
+    private void clearCloaks(List<EntityPlayer> playerEntities, Minecraft mc)
+    {
         System.out.println("[TWN] Clearing capes...");
 
         checked.clear();
@@ -93,7 +98,8 @@ public class Tnw_Cape_Mod {
 
     }
 
-    private void updateCloakURLs() {
+    private void updateCloakURLs()
+    {
         Minecraft mc = Minecraft.getMinecraft();
 
         if (capeDIRs == null || capeDIRs.isEmpty()) return;
@@ -102,7 +108,8 @@ public class Tnw_Cape_Mod {
         if (tick >= sweep) {
             tick = 0;
 
-            if (mc == null || mc.theWorld == null || mc.theWorld.playerEntities == null || mc.renderEngine == null) {
+            if (mc == null || mc.theWorld == null || mc.theWorld.playerEntities == null || mc.renderEngine == null)
+            {
                 return;
             }
 
@@ -184,6 +191,7 @@ public class Tnw_Cape_Mod {
         return string;
     }
 
+
     protected void checkCloakURLs(List<String> playerNames) {
         for (String playerName : playerNames) {
 
@@ -223,10 +231,10 @@ public class Tnw_Cape_Mod {
                 AbstractClientPlayer aPlayer = (AbstractClientPlayer) Minecraft.getMinecraft().theWorld.getPlayerEntityByName(playerName);
 
                 // get cloak
-                ResourceLocation resourcePackCloak = AbstractClientPlayer.getLocationCape(aPlayer.getCommandSenderName());
 
+                ResourceLocation resourcePackCloak = AbstractClientPlayer.getLocationCape();
                 TextureManager texturemanager = Minecraft.getMinecraft().getTextureManager();
-                ThreadDownloadImageData object = new ThreadDownloadImageData(found, null, null);
+                ThreadDownloadImageData object = new ThreadDownloadImageData(null, found, null, null);
                 texturemanager.loadTexture(resourcePackCloak, (ITextureObject) object);
 
                 checked.put(playerName, object);
