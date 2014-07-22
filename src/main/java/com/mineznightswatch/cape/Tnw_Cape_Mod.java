@@ -1,5 +1,6 @@
 package com.mineznightswatch.cape;
 
+import com.mineznightswatch.cape.Util.references;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -24,11 +25,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-@Mod(modid = Tnw_Cape_Mod.MODID, version = Tnw_Cape_Mod.VERSION)
+@Mod(modid = references.MOD_ID, name = references.MOD_NAME, version = references.MOD_VERSION)
 public class Tnw_Cape_Mod {
-    public static final String MODID = "TNW_cape_mod";
-    public static final String VERSION = "1.0.0";
-
     int tick = 0;
     int sweep = 20;
 
@@ -38,7 +36,7 @@ public class Tnw_Cape_Mod {
     private ArrayList<String> ignored = new ArrayList<String>();
     private ArrayList<String> players = new ArrayList<String>();
 
-    private String capesDir = "http://minez-nightswatch.com/mod/cape?user=";
+    private String capesDir = references.CAPES_DIR;
 
     boolean checking = false;
     boolean shouldClear = false;
@@ -198,7 +196,7 @@ public class Tnw_Cape_Mod {
                 try {
                     HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
                     con.setRequestMethod("HEAD");
-                    con.setRequestProperty("User-agent", "MineCapes " + VERSION);
+                    con.setRequestProperty("User-agent", "MineCapes " + references.MOD_VERSION);
                     con.setRequestProperty("Java-Version", System.getProperty("java.version"));
                     con.setConnectTimeout(2000);
                     con.setUseCaches(false);
