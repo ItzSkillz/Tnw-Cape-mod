@@ -231,8 +231,9 @@ public class Tnw_Cape_Mod
                 AbstractClientPlayer aPlayer = (AbstractClientPlayer) Minecraft.getMinecraft().theWorld.getPlayerEntityByName(playerName);
 
                 // get cloak
+                ResourceLocation resourcePackCloak = AbstractClientPlayer.getLocationCape(aPlayer.getCommandSenderName());//fix this line
 
-                TextureManager texturemanager = Minecraft.getMinecraft().getTextureManager(); //fix this line!
+                TextureManager texturemanager = Minecraft.getMinecraft().getTextureManager();
                 ThreadDownloadImageData object = new ThreadDownloadImageData(null, found, null, null);
                 texturemanager.loadTexture(resourcePackCloak, (ITextureObject) object);
 
