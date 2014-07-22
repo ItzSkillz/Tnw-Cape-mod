@@ -1,5 +1,6 @@
 package com.mineznightswatch.cape;
 
+import com.mineznightswatch.cape.Util.LogHelper;
 import com.mineznightswatch.cape.Util.references;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
@@ -15,6 +16,7 @@ import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import sun.rmi.runtime.Log;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -57,7 +59,7 @@ public class Tnw_Cape_Mod {
 
 
     private void clearCloaks(List<EntityPlayer> playerEntities, Minecraft mc) {
-        System.out.println("[TWN] Clearing capes...");
+        LogHelper.info("[TWN] Clearing capes...");
 
         checked.clear();
         ignored.clear();
@@ -66,7 +68,7 @@ public class Tnw_Cape_Mod {
     private void findCapesDirectories() {
         new Thread() {
             public void run() {
-                System.out.println("[TNW] Searching for capes directories ...");
+                LogHelper.info("[TNW] Searching for capes directories ...");
 
                 ArrayList<String> _capeDIRs = new ArrayList<String>();
                 try {
@@ -78,7 +80,7 @@ public class Tnw_Cape_Mod {
                     in.close();
 
                 } catch (Exception e) {
-                    System.out.println("[TNW] External cape directories could not be found. Try again on restart...");
+                    LogHelper.info("[TNW] External cape directories could not be found. Try again on restart...");
                 }
 
                 _capeDIRs.add(0, capesDir);
@@ -144,7 +146,7 @@ public class Tnw_Cape_Mod {
                     // check if needs update
                     if (downloadImageCape != null && usersCape != currentCape) {
 
-                        System.out.println("[TNW] Applying (new) cape for: " + playerName);
+                        LogHelper.info("[TNW] Applying (new) cape for: " + playerName);
 
                         // set as users cloak resource
                         try {
@@ -187,7 +189,7 @@ public class Tnw_Cape_Mod {
 
             if (ignored.contains(playerName) || checked.containsKey(playerName)) continue;
 
-            System.out.println("[TNW] Found new player: " + playerName);
+            LogHelper.info("[TNW] Found new player: " + playerName);
 
             String found = null;
             for (String capeURLcheck : capeDIRs) {
@@ -215,7 +217,7 @@ public class Tnw_Cape_Mod {
 
             if (found == null) {
                 ignored.add(playerName);
-                System.out.println("[TNW] Could not find any cloak, ignoring ...");
+                LogHelper.warn("[TNW] Could not find any cloak, ignoring ...");
 
             } else {
                 AbstractClientPlayer aPlayer = (AbstractClientPlayer) Minecraft.getMinecraft().theWorld.getPlayerEntityByName(playerName);
@@ -228,7 +230,7 @@ public class Tnw_Cape_Mod {
                 texturemanager.loadTexture(resourcePackCloak, (ITextureObject) object);
 
                 checked.put(playerName, object);
-                System.out.println("[TNW] Found cloak: " + found);
+                LogHelper.info("[TNW] Found cloak: " + found);
             }
         }
     }
