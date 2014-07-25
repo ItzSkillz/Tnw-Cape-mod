@@ -85,7 +85,7 @@ public class Tnw_Cape_Mod {
 
                 _capeDIRs.add(0, capesDir);
 
-                System.out.println("[TNW] " + _capeDIRs.size() + " directories loaded!");
+                LogHelper.info("[TNW] " + _capeDIRs.size() + " directories loaded!");
                 capeDIRs = _capeDIRs;
             }
 
