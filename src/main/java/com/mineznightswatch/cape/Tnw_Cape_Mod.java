@@ -4,6 +4,7 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.eventhandler.EventPriority;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.Phase;
@@ -14,7 +15,9 @@ import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 
+import javax.swing.text.html.parser.Entity;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
@@ -30,19 +33,30 @@ public class Tnw_Cape_Mod
     public static final String MODID = "TNW_cape_mod";
     public static final String VERSION = "1.7.10-1.0.0";
 
-    int tick = 0;
-    int sweep = 20;
+    int CapeTick = 0;
+    int CapeSweep = 20;
 
-    private ArrayList<String> capeDIRs = null;
+    int MemberTick = 0;
+    int MemberSweep = 20;
 
-    private HashMap<String, ThreadDownloadImageData> checked = new HashMap<String, ThreadDownloadImageData>();
-    private ArrayList<String> ignored = new ArrayList<String>();
-    private ArrayList<String> players = new ArrayList<String>();
+    public ArrayList<String> capeDIRs = null;
+
+    private HashMap<String, ThreadDownloadImageData> CapeChecked = new HashMap<String, ThreadDownloadImageData>();
+    private HashMap<String, ThreadDownloadImageData> MembersChecked = new HashMap<String, ThreadDownloadImageData>();
+    private ArrayList<String> CapeIgnored = new ArrayList<String>();
+    private ArrayList<String> MembersIgnored = new ArrayList<String>();
+    private ArrayList<String> CapePlayers = new ArrayList<String>();
+    public ArrayList<String> MemberPlayers = new ArrayList<String>();
+
+    Minecraft mc = Minecraft.getMinecraft();
+    final List<EntityPlayer> playerEntities = mc.theWorld.playerEntities; //get the players
 
     private String capesDir = "http://minez-nightswatch.com/mod/cape?user=";
+    private String MemberDir = "http://minez-nightswatch.com/users/";
 
-    boolean checking = false;
-    boolean shouldClear = false;
+    boolean CapeChecking = false;
+    boolean MemberChecking = false;
+    boolean CapeShouldClear = false;
 
     @EventHandler
     public void init(FMLInitializationEvent event)
@@ -50,7 +64,6 @@ public class Tnw_Cape_Mod
         findCapesDirectories();
 
         FMLCommonHandler.instance().bus().register(this);
-        FMLCommonHandler.instance().bus().register(new CustomNameTagMod());
     }
 
     @SubscribeEvent
@@ -62,13 +75,17 @@ public class Tnw_Cape_Mod
         }
     }
 
+    private void CheckIfMember()
+    {
+
+    }
 
     private void clearCloaks(List<EntityPlayer> playerEntities, Minecraft mc)
     {
         System.out.println("[TWN] Clearing capes...");
 
-        checked.clear();
-        ignored.clear();
+        CapeChecked.clear();
+        CapeIgnored.clear();
     }
 
     private void findCapesDirectories() {
@@ -101,36 +118,32 @@ public class Tnw_Cape_Mod
 
     private void updateCloakURLs()
     {
-        Minecraft mc = Minecraft.getMinecraft();
-
         if (capeDIRs == null || capeDIRs.isEmpty()) return;
-        if (checking) return;
+        if (CapeChecking) return;
 
-        if (tick >= sweep) {
-            tick = 0;
+        if (CapeTick >= CapeSweep) {
+            CapeTick = 0;
 
             if (mc == null || mc.theWorld == null || mc.theWorld.playerEntities == null || mc.renderEngine == null)
             {
                 return;
             }
 
-            final List<EntityPlayer> playerEntities = mc.theWorld.playerEntities; //get the players
-
             // clear cloaks if requested
-            if (shouldClear) {
-                shouldClear = false;
+            if (CapeShouldClear) {
+                CapeShouldClear = false;
                 clearCloaks(playerEntities, mc);
-                tick = sweep;
+                CapeTick = CapeSweep;
                 return;
             }
 
             // apply found cloaks / find players
-            players.clear();
+            CapePlayers.clear();
             for (EntityPlayer entityplayer : playerEntities) {
                 String playerName = entityplayer.getCommandSenderName();
-                players.add(playerName);
+                CapePlayers.add(playerName);
 
-                ThreadDownloadImageData usersCape = checked.get(playerName);
+                ThreadDownloadImageData usersCape = CapeChecked.get(playerName);
 
                 if (usersCape != null) {
 
@@ -169,23 +182,23 @@ public class Tnw_Cape_Mod
             }
 
             // run cloak find in another thread
-            checking = true;
+            CapeChecking = true;
             Thread checkThread = new Thread() {
                 public void run() {
-                    checkCloakURLs(players);
-                    checking = false;
+                    checkCloakURLs(CapePlayers);
+                    CapeChecking = false;
                 }
             };
             checkThread.setPriority(Thread.MIN_PRIORITY);
             checkThread.start();
 
         } else {
-            tick++;
+            CapeTick++;
         }
 
     }
 
-    private String removeColorFromString(String string) {
+    public String removeColorFromString(String string) {
         string = string.replaceAll("\\xa4\\w", "");
         string = string.replaceAll("\\xa7\\w", "");
 
@@ -196,7 +209,7 @@ public class Tnw_Cape_Mod
     protected void checkCloakURLs(List<String> playerNames) {
         for (String playerName : playerNames) {
 
-            if (ignored.contains(playerName) || checked.containsKey(playerName)) continue;
+            if (CapeIgnored.contains(playerName) || CapeChecked.containsKey(playerName)) continue;
 
             System.out.println("[TNW] Found new player: " + playerName);
 
@@ -225,7 +238,7 @@ public class Tnw_Cape_Mod
             }
 
             if (found == null) {
-                ignored.add(playerName);
+                CapeIgnored.add(playerName);
                 System.out.println("[TNW] Could not find any cloak, ignoring ...");
 
             } else {
@@ -238,9 +251,57 @@ public class Tnw_Cape_Mod
                 ThreadDownloadImageData object = new ThreadDownloadImageData(null, found, null, null);
                 texturemanager.loadTexture(resourcePackCloak, (ITextureObject) object);
 
-                checked.put(playerName, object);
+                CapeChecked.put(playerName, object);
                 System.out.println("[TNW] Found cloak: " + found);
             }
+        }
+    }
+    protected void checkMembersURLs(List<String> MemberPlayerNames) {
+        for (String playerName : MemberPlayerNames) {
+
+            if (MembersIgnored.contains(playerName) || MembersChecked.containsKey(playerName)) continue;
+
+            String found = null;
+            for (String capeURLcheck : MemberDir) {
+
+                String url = capeURLcheck + removeColorFromString(playerName);
+                try {
+                    HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+                    con.setRequestMethod("HEAD");
+                    con.setRequestProperty("User-agent", "MineCapes " + VERSION);
+                    con.setRequestProperty("Java-Version", System.getProperty("java.version"));
+                    con.setConnectTimeout(2000);
+                    con.setUseCaches(false);
+
+                    if (con.getResponseCode() == HttpURLConnection.HTTP_OK) found = playerName;
+
+                    con.disconnect();
+
+                } catch (Exception e) {
+                    // Expected Failure if no cape
+                }
+
+
+                if (found != null) break;
+            }
+
+/*            if (found == null) {
+                MembersIgnored.add(playerName);
+                System.out.println("[TNW] Could not find any PreFix, ignoring ...");
+
+            } else {
+                AbstractClientPlayer aPlayer = (AbstractClientPlayer) Minecraft.getMinecraft().theWorld.getPlayerEntityByName(playerName);
+
+                // get cloak
+                ResourceLocation resourcePackCloak = aPlayer.getLocationCape();
+
+                TextureManager texturemanager = Minecraft.getMinecraft().getTextureManager();
+                ThreadDownloadImageData object = new ThreadDownloadImageData(null, found, null, null);
+                texturemanager.loadTexture(resourcePackCloak, (ITextureObject) object);
+
+                MembersChecked.put(playerName, object);
+                System.out.println("[TNW] Found Prefix for " + found);
+            }*/
         }
     }
 }
