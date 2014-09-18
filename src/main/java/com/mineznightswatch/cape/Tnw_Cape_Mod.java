@@ -50,6 +50,7 @@ public class Tnw_Cape_Mod
         findCapesDirectories();
 
         FMLCommonHandler.instance().bus().register(this);
+        FMLCommonHandler.instance().bus().register(new CustomNameTagMod());
     }
 
     @SubscribeEvent
