@@ -17,7 +17,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
-import javax.swing.text.html.parser.Entity;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
@@ -40,28 +39,35 @@ public class Tnw_Cape_Mod
     int MemberSweep = 20;
 
     public ArrayList<String> capeDIRs = null;
+    public ArrayList<String> membersDIRs = null;
 
     private HashMap<String, ThreadDownloadImageData> CapeChecked = new HashMap<String, ThreadDownloadImageData>();
     private HashMap<String, ThreadDownloadImageData> MembersChecked = new HashMap<String, ThreadDownloadImageData>();
     private ArrayList<String> CapeIgnored = new ArrayList<String>();
     private ArrayList<String> MembersIgnored = new ArrayList<String>();
     private ArrayList<String> CapePlayers = new ArrayList<String>();
-    public ArrayList<String> MemberPlayers = new ArrayList<String>();
+    private ArrayList<String> MemberPlayers = new ArrayList<String>();
 
     Minecraft mc = Minecraft.getMinecraft();
-    final List<EntityPlayer> playerEntities = mc.theWorld.playerEntities; //get the players
 
     private String capesDir = "http://minez-nightswatch.com/mod/cape?user=";
-    private String MemberDir = "http://minez-nightswatch.com/users/";
+    private String membersDir = "http://minez-nightswatch.com/users/";
 
     boolean CapeChecking = false;
-    boolean MemberChecking = false;
+    boolean MembersChecking = false;
     boolean CapeShouldClear = false;
+    boolean MemberShouldClear = false;
+
+    String Membersfound = null;
+
+    @Mod.Instance
+    public static Tnw_Cape_Mod instance;
 
     @EventHandler
     public void init(FMLInitializationEvent event)
     {
         findCapesDirectories();
+        findMembersDirectories();
 
         FMLCommonHandler.instance().bus().register(this);
     }
@@ -72,12 +78,17 @@ public class Tnw_Cape_Mod
         if (event.phase == Phase.END)
         {
             updateCloakURLs();
+            updateMembersURLs();
         }
     }
 
-    private void CheckIfMember()
+    @SubscribeEvent
+    public void NameFormat(PlayerEvent.NameFormat event)
     {
-
+        if (event.username.equals(Membersfound))
+        {
+            event.displayname = "[TNW]" + event.username;
+        }
     }
 
     private void clearCloaks(List<EntityPlayer> playerEntities, Minecraft mc)
@@ -87,6 +98,29 @@ public class Tnw_Cape_Mod
         CapeChecked.clear();
         CapeIgnored.clear();
     }
+    private void findMembersDirectories()
+    {
+        new Thread(){
+            public void run() {
+                ArrayList<String> _MembersDIRs = new ArrayList<String>();
+                try{
+                    URL dirList = new URL("http://minez-nightswatch.com/users/");
+                    BufferedReader in = new BufferedReader(new InputStreamReader(dirList.openStream()));
+
+                    String inputLine;
+                    while ((inputLine = in.readLine()) !=null) _MembersDIRs.add(inputLine);
+                    in.close();
+                } catch (Exception e) {
+                    System.out.println("[TNW] could not detect members directory. try again or restart...");
+                }
+
+                _MembersDIRs.add(0, membersDir);
+                System.out.println("[TNW]" + _MembersDIRs.size() + " member directories loaded!");
+                membersDIRs = _MembersDIRs;
+            }
+        }.start();
+    }
+
 
     private void findCapesDirectories() {
         new Thread() {
@@ -108,7 +142,7 @@ public class Tnw_Cape_Mod
 
                 _capeDIRs.add(0, capesDir);
 
-                System.out.println("[TNW] " + _capeDIRs.size() + " directories loaded!");
+                System.out.println("[TNW] " + _capeDIRs.size() + " cape directories loaded!");
                 capeDIRs = _capeDIRs;
             }
 
@@ -128,6 +162,8 @@ public class Tnw_Cape_Mod
             {
                 return;
             }
+
+            final List<EntityPlayer> playerEntities = mc.theWorld.playerEntities; //get the players
 
             // clear cloaks if requested
             if (CapeShouldClear) {
@@ -187,6 +223,7 @@ public class Tnw_Cape_Mod
                 public void run() {
                     checkCloakURLs(CapePlayers);
                     CapeChecking = false;
+                    checkMembersURLs(MemberPlayers);
                 }
             };
             checkThread.setPriority(Thread.MIN_PRIORITY);
@@ -196,6 +233,64 @@ public class Tnw_Cape_Mod
             CapeTick++;
         }
 
+    }
+
+    private void updateMembersURLs()
+    {
+        if (membersDIRs == null || membersDIRs.isEmpty()) return;
+        if (MembersChecking) return;
+
+        if (MemberTick >= MemberSweep)
+        {
+            MemberTick = 0;
+
+            if (mc == null || mc.theWorld == null || mc.theWorld.playerEntities == null || mc.renderEngine == null)
+            {
+                return;
+            }
+
+            final List<EntityPlayer> playerEntities = mc.theWorld.playerEntities; //get the players
+
+            // clear cloaks if requested
+            if (MemberShouldClear)
+            {
+                MemberShouldClear = false;
+                clearTags(playerEntities, mc);
+                MemberTick = MemberSweep;
+                return;
+            }
+
+            // apply found cloaks / find players
+            MemberPlayers.clear();
+            for (EntityPlayer entityplayer : playerEntities)
+            {
+                String playerName = entityplayer.getCommandSenderName();
+                MemberPlayers.add(playerName);
+
+                // run cloak find in another thread
+                CapeChecking = true;
+                Thread checkThread = new Thread()
+                {
+                    public void run()
+                    {
+                        Tnw_Cape_Mod TNW = new Tnw_Cape_Mod();
+                        TNW.checkMembersURLs(MemberPlayers);
+                        MembersChecking = false;
+                    }
+                };
+                checkThread.setPriority(Thread.MIN_PRIORITY);
+                checkThread.start();
+
+            }
+        }else MemberTick++;
+    }
+
+    private void clearTags(List<EntityPlayer> playerEntities, Minecraft mc)
+    {
+        System.out.println("[TWN] Clearing Pre-fixes ...");
+
+        MembersChecked.clear();
+        MembersIgnored.clear();
     }
 
     public String removeColorFromString(String string) {
@@ -256,15 +351,13 @@ public class Tnw_Cape_Mod
             }
         }
     }
-    protected void checkMembersURLs(List<String> MemberPlayerNames) {
-        for (String playerName : MemberPlayerNames) {
+    protected void checkMembersURLs(List<String> PlayerNames) {
+        for (String playerName : PlayerNames) {
 
             if (MembersIgnored.contains(playerName) || MembersChecked.containsKey(playerName)) continue;
+            for (String membersURLcheck : membersDIRs) {
 
-            String found = null;
-            for (String capeURLcheck : MemberDir) {
-
-                String url = capeURLcheck + removeColorFromString(playerName);
+                String url = membersURLcheck + removeColorFromString(playerName);
                 try {
                     HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
                     con.setRequestMethod("HEAD");
@@ -273,35 +366,19 @@ public class Tnw_Cape_Mod
                     con.setConnectTimeout(2000);
                     con.setUseCaches(false);
 
-                    if (con.getResponseCode() == HttpURLConnection.HTTP_OK) found = playerName;
+                    if (con.getResponseCode() == HttpURLConnection.HTTP_OK) Membersfound = playerName;
 
                     con.disconnect();
 
                 } catch (Exception e) {
-                    // Expected Failure if no cape
+                    // Expected Failure if not a member
+                    System.out.println("playerName: " + playerName);
                 }
 
 
-                if (found != null) break;
+                if (Membersfound != null) break;
+
             }
-
-/*            if (found == null) {
-                MembersIgnored.add(playerName);
-                System.out.println("[TNW] Could not find any PreFix, ignoring ...");
-
-            } else {
-                AbstractClientPlayer aPlayer = (AbstractClientPlayer) Minecraft.getMinecraft().theWorld.getPlayerEntityByName(playerName);
-
-                // get cloak
-                ResourceLocation resourcePackCloak = aPlayer.getLocationCape();
-
-                TextureManager texturemanager = Minecraft.getMinecraft().getTextureManager();
-                ThreadDownloadImageData object = new ThreadDownloadImageData(null, found, null, null);
-                texturemanager.loadTexture(resourcePackCloak, (ITextureObject) object);
-
-                MembersChecked.put(playerName, object);
-                System.out.println("[TNW] Found Prefix for " + found);
-            }*/
         }
     }
 }
