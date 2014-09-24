@@ -37,7 +37,8 @@ public class Tnw_Cape_Mod {
     int MemberSweep = 20;
 
     private ArrayList<String> capeDIRs = null;
-    public ArrayList<String> membersDIRs = null;
+    private ArrayList<String> membersDIRs = new ArrayList<String>();
+    private ArrayList<String> Membersfound = new ArrayList<String>();
 
     private HashMap<String, ThreadDownloadImageData> CapeChecked = new HashMap<String, ThreadDownloadImageData>();
     private HashMap<String, ThreadDownloadImageData> MembersChecked = new HashMap<String, ThreadDownloadImageData>();
@@ -56,16 +57,12 @@ public class Tnw_Cape_Mod {
     boolean CapeShouldClear = false;
     boolean MemberShouldClear = false;
 
-    String Membersfound = null;
-
     @Mod.Instance
     public static Tnw_Cape_Mod instance;
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
         findCapesDirectories();
-        findMembersDirectories();
-
         FMLCommonHandler.instance().bus().register(this);
     }
 
@@ -80,7 +77,7 @@ public class Tnw_Cape_Mod {
     @SubscribeEvent
     public void NameFormat(PlayerEvent.NameFormat event)
     {
-        if (event.username.equals(Membersfound))
+        if ( Membersfound.contains(event.username))
         {
             event.displayname = "[TNW]" + event.username;
         }
@@ -92,29 +89,6 @@ public class Tnw_Cape_Mod {
 
         CapeChecked.clear();
         CapeIgnored.clear();
-    }
-
-    private void findMembersDirectories()
-    {
-        new Thread(){
-            public void run() {
-                ArrayList<String> _MembersDIRs = new ArrayList<String>();
-                try{
-                    URL dirList = new URL("http://minez-nightswatch.com/users/");
-                    BufferedReader in = new BufferedReader(new InputStreamReader(dirList.openStream()));
-
-                    String inputLine;
-                    while ((inputLine = in.readLine()) !=null) _MembersDIRs.add(inputLine);
-                    in.close();
-                } catch (Exception e) {
-                    System.out.println("[TNW] could not detect members directory. try again or restart...");
-                }
-
-                _MembersDIRs.add(0, membersDir);
-                System.out.println("[TNW]" + _MembersDIRs.size() + " member directories loaded!");
-                membersDIRs = _MembersDIRs;
-            }
-        }.start();
     }
 
     private void findCapesDirectories() {
@@ -231,7 +205,6 @@ public class Tnw_Cape_Mod {
 
     private void updateMembersURLs()
     {
-        if (membersDIRs == null || membersDIRs.isEmpty()) return;
         if (MembersChecking) return;
 
         if (MemberTick >= MemberSweep)
@@ -347,6 +320,7 @@ public class Tnw_Cape_Mod {
         for (String playerName : PlayerNames) {
 
             if (MembersIgnored.contains(playerName) || MembersChecked.containsKey(playerName)) continue;
+            membersDIRs.add(membersDir);
             for (String membersURLcheck : membersDIRs) {
 
                 String url = membersURLcheck + removeColorFromString(playerName);
@@ -358,7 +332,7 @@ public class Tnw_Cape_Mod {
                     con.setConnectTimeout(2000);
                     con.setUseCaches(false);
 
-                    if (con.getResponseCode() == HttpURLConnection.HTTP_OK) Membersfound = playerName;
+                    if (con.getResponseCode() == HttpURLConnection.HTTP_OK) Membersfound.add(playerName);
 
                     con.disconnect();
 
