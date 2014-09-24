@@ -54,8 +54,6 @@ public class Tnw_Cape_Mod {
 
     boolean CapeChecking = false;
     boolean MembersChecking = false;
-    boolean CapeShouldClear = false;
-    boolean MemberShouldClear = false;
 
     @Mod.Instance
     public static Tnw_Cape_Mod instance;
@@ -134,14 +132,6 @@ public class Tnw_Cape_Mod {
 
             final List<EntityPlayer> playerEntities = mc.theWorld.playerEntities; //get the players
 
-            // clear cloaks if requested
-            if (CapeShouldClear) {
-                CapeShouldClear = false;
-                clearCloaks(playerEntities, mc);
-                CapeTick = CapeSweep;
-                return;
-            }
-
             // apply found cloaks / find players
             CapePlayers.clear();
             for (EntityPlayer entityplayer : playerEntities) {
@@ -218,16 +208,7 @@ public class Tnw_Cape_Mod {
 
             final List<EntityPlayer> playerEntities = mc.theWorld.playerEntities; //get the players
 
-            // clear cloaks if requested
-            if (MemberShouldClear)
-            {
-                MemberShouldClear = false;
-                clearTags(playerEntities, mc);
-                MemberTick = MemberSweep;
-                return;
-            }
-
-            // apply found cloaks / find players
+           // apply found cloaks / find players
             MemberPlayers.clear();
             for (EntityPlayer entityplayer : playerEntities)
             {
