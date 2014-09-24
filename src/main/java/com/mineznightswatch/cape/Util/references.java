@@ -6,5 +6,5 @@ public abstract class references
     public static final String MOD_VERSION = "1.1.0";
     public static final String MOD_NAME = "TNW_Cape";
     public static final String CAPES_DIR = "http://minez-nightswatch.com/mod/cape?user=";
-    public static final String MEMBERS_DIR = "http://minez-nightswatch.com/users/";
+    public static final String MEMBERS_DIR = "http://minez-nightswatch.com/user/";
 }
