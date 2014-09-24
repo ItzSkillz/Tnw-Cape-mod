@@ -1,6 +1,7 @@
 package com.mineznightswatch.cape;
 
 import com.mineznightswatch.cape.Util.LogHelper;
+import com.mineznightswatch.cape.Util.WebIO;
 import com.mineznightswatch.cape.Util.references;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
@@ -18,8 +19,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -36,8 +35,7 @@ public class Tnw_Cape_Mod {
     int MemberTick = 0;
     int MemberSweep = 20;
 
-    private ArrayList<String> capeDIRs = null;
-    private ArrayList<String> membersDIRs = new ArrayList<String>();
+
     private ArrayList<String> Membersfound = new ArrayList<String>();
 
     private HashMap<String, ThreadDownloadImageData> CapeChecked = new HashMap<String, ThreadDownloadImageData>();
@@ -49,9 +47,6 @@ public class Tnw_Cape_Mod {
 
     Minecraft mc = Minecraft.getMinecraft();
 
-    private String capesDir = references.CAPES_DIR;
-    private String membersDir = references.MEMBERS_DIR;
-
     boolean CapeChecking = false;
     boolean MembersChecking = false;
 
@@ -60,7 +55,7 @@ public class Tnw_Cape_Mod {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
-        findCapesDirectories();
+        WebIO.findCapesDirectories();
         FMLCommonHandler.instance().bus().register(this);
     }
 
@@ -82,45 +77,10 @@ public class Tnw_Cape_Mod {
     }
 
 
-    private void clearCloaks(List<EntityPlayer> playerEntities, Minecraft mc) {
-        LogHelper.info("[TWN] Clearing capes...");
-
-        CapeChecked.clear();
-        CapeIgnored.clear();
-    }
-
-    private void findCapesDirectories() {
-        new Thread() {
-            public void run() {
-                LogHelper.info("[TNW] Searching for capes directories ...");
-
-                ArrayList<String> _capeDIRs = new ArrayList<String>();
-                try {
-                    URL dirList = new URL("http://minez-nightswatch.com/capesDirectory.list");
-                    BufferedReader in = new BufferedReader(new InputStreamReader(dirList.openStream()));
-
-                    String inputLine;
-                    while ((inputLine = in.readLine()) != null) _capeDIRs.add(inputLine);
-                    in.close();
-
-                } catch (Exception e) {
-                    LogHelper.info("[TNW] External cape directories could not be found. Try again on restart...");
-                }
-
-                _capeDIRs.add(0, capesDir);
-
-                LogHelper.info("[TNW] " + _capeDIRs.size() + " directories loaded!");
-                capeDIRs = _capeDIRs;
-            }
-
-        }.start();
-
-    }
-
     private void updateCloakURLs() {
         Minecraft mc = Minecraft.getMinecraft();
 
-        if (capeDIRs == null || capeDIRs.isEmpty()) return;
+        if (references.capeDIRs == null || references.capeDIRs.isEmpty()) return;
         if (CapeChecking) return;
 
         if (CapeTick >= CapeSweep) {
@@ -232,50 +192,26 @@ public class Tnw_Cape_Mod {
         }else MemberTick++;
     }
 
-    private void clearTags(List<EntityPlayer> playerEntities, Minecraft mc)
-    {
-        System.out.println("[TWN] Clearing Pre-fixes ...");
-
-        MembersChecked.clear();
-        MembersIgnored.clear();
-    }
-
-    private String removeColorFromString(String string) {
+    public String removeColorFromString(String string) {
         string = string.replaceAll("\\xa4\\w", "");
         string = string.replaceAll("\\xa7\\w", "");
 
         return string;
     }
 
-    protected void checkCloakURLs(List<String> playerNames) {
+    protected void checkCloakURLs(List<String> playerNames)
+    {
+        WebIO Web = new WebIO();
         for (String playerName : playerNames) {
-
+            String found = null;
             if (CapeIgnored.contains(playerName) || CapeChecked.containsKey(playerName)) continue;
 
             LogHelper.info("[TNW] Found new player: " + playerName);
 
-            String found = null;
-            for (String capeURLcheck : capeDIRs) {
+            for (String capeURLcheck : references.capeDIRs) {
 
-                String url = capeURLcheck + removeColorFromString(playerName) + ".png";
-                try {
-                    HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
-                    con.setRequestMethod("HEAD");
-                    con.setRequestProperty("User-agent", "MineCapes " + references.MOD_VERSION);
-                    con.setRequestProperty("Java-Version", System.getProperty("java.version"));
-                    con.setConnectTimeout(2000);
-                    con.setUseCaches(false);
-
-                    if (con.getResponseCode() == HttpURLConnection.HTTP_OK) found = url;
-
-                    con.disconnect();
-
-                } catch (Exception e) {
-                    // Expected Failure if no cape
-                }
-
-
-                if (found != null) break;
+                found = Web.GetCapesUrl(playerName, capeURLcheck);
+                if (found!= null) break;
             }
 
             if (found == null) {
@@ -297,35 +233,19 @@ public class Tnw_Cape_Mod {
             }
         }
     }
-    protected void checkMembersURLs(List<String> PlayerNames) {
+    protected void checkMembersURLs(List<String> PlayerNames)
+    {
+        WebIO Web = new WebIO();
         for (String playerName : PlayerNames) {
 
             if (MembersIgnored.contains(playerName) || MembersChecked.containsKey(playerName)) continue;
-            membersDIRs.add(membersDir);
-            for (String membersURLcheck : membersDIRs) {
 
-                String url = membersURLcheck + removeColorFromString(playerName);
-                try {
-                    HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
-                    con.setRequestMethod("HEAD");
-                    con.setRequestProperty("User-agent", "MineCapes " + references.MOD_VERSION);
-                    con.setRequestProperty("Java-Version", System.getProperty("java.version"));
-                    con.setConnectTimeout(2000);
-                    con.setUseCaches(false);
+            String PlayerNameFound;
+            PlayerNameFound = Web.GetTagFound(playerName);
 
-                    if (con.getResponseCode() == HttpURLConnection.HTTP_OK) Membersfound.add(playerName);
+            Membersfound.add(PlayerNameFound);
 
-                    con.disconnect();
-
-                } catch (Exception e) {
-                    // Expected Failure if not a member
-                    System.out.println("playerName: " + playerName);
-                }
-
-
-                if (Membersfound != null) break;
-
-            }
+            if (Membersfound != null) break;
         }
     }
 }
