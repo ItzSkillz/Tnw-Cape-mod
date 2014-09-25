@@ -85,4 +85,26 @@ public class WebIO
         }
         return TagFound;
     }
+
+    public boolean CheckIfUser(String UserName)
+    {
+        boolean Member = false;
+        String url = references.MEMBERS_DIR + Tnw_Cape_Mod.instance.removeColorFromString(UserName);
+        try
+        {
+            HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+            con.setRequestMethod("HEAD");
+            con.setRequestProperty("User-agent", "MineCapes " + references.MOD_VERSION);
+            con.setRequestProperty("Java-Version", System.getProperty("java.version"));
+            con.setConnectTimeout(2000);
+            con.setUseCaches(false);
+
+            if (con.getResponseCode() == HttpURLConnection.HTTP_OK) Member = true;
+
+            con.disconnect();
+        }catch (Exception e){
+            Member = false;
+        }
+        return Member;
+    }
 }

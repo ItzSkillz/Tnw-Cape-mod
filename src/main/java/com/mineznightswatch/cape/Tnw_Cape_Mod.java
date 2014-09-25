@@ -1,6 +1,7 @@
 package com.mineznightswatch.cape;
 
 import com.mineznightswatch.cape.Util.LogHelper;
+import com.mineznightswatch.cape.Util.Utils;
 import com.mineznightswatch.cape.Util.WebIO;
 import com.mineznightswatch.cape.Util.references;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -17,6 +18,7 @@ import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
 import java.lang.reflect.Field;
@@ -34,6 +36,7 @@ public class Tnw_Cape_Mod {
 
     int MemberTick = 0;
     int MemberSweep = 20;
+    WebIO IO = new WebIO();
 
 
     private ArrayList<String> Membersfound = new ArrayList<String>();
@@ -49,6 +52,7 @@ public class Tnw_Cape_Mod {
 
     boolean CapeChecking = false;
     boolean MembersChecking = false;
+    boolean MP;
 
     @Mod.Instance
     public static Tnw_Cape_Mod instance;
@@ -61,7 +65,7 @@ public class Tnw_Cape_Mod {
 
     @SubscribeEvent
     public void tick(ClientTickEvent event) {
-        if (event.phase == Phase.END) {
+        if (event.phase == Phase.END && MP) {
             updateCloakURLs();
             updateMembersURLs();
         }
@@ -76,8 +80,15 @@ public class Tnw_Cape_Mod {
         }
     }
 
+    @SubscribeEvent
+    public void EntityJoinWOrldEvent(EntityJoinWorldEvent event)
+    {
+        Utils UT = new Utils();
+        MP = !UT.isSP();
+    }
 
-    private void updateCloakURLs() {
+
+    public void updateCloakURLs() {
         Minecraft mc = Minecraft.getMinecraft();
 
         if (references.capeDIRs == null || references.capeDIRs.isEmpty()) return;
