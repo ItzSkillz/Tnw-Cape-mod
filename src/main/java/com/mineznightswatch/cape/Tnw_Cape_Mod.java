@@ -21,7 +21,7 @@ import sun.rmi.runtime.Log;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
-import java.net.HttpURLConnection;
+import java.net.ssl.HttpsURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,7 +72,7 @@ public class Tnw_Cape_Mod {
 
                 ArrayList<String> _capeDIRs = new ArrayList<String>();
                 try {
-                    URL dirList = new URL("http://minez-nightswatch.com/capesDirectory.list");
+                    URL dirList = new URL("https://minez-nightswatch.com/capesDirectory.list");
                     BufferedReader in = new BufferedReader(new InputStreamReader(dirList.openStream()));
 
                     String inputLine;
@@ -196,7 +196,7 @@ public class Tnw_Cape_Mod {
 
                 String url = capeURLcheck + removeColorFromString(playerName) + ".png";
                 try {
-                    HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+                    HttpsURLConnection con = (HttpsURLConnection) new URL(url).openConnection();
                     con.setRequestMethod("HEAD");
                     con.setRequestProperty("User-agent", "MineCapes " + references.MOD_VERSION);
                     con.setRequestProperty("Java-Version", System.getProperty("java.version"));
