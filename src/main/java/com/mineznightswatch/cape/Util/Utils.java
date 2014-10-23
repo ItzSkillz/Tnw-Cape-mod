@@ -1,30 +1,33 @@
 package com.mineznightswatch.cape.Util;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Utils
 {
+    public ArrayList<String> PL = new ArrayList<String>();
     protected Minecraft mc;
-    boolean SP;
-    boolean MP;
+    final List<EntityPlayer> playerEntities = mc.theWorld.playerEntities;
 
-    public boolean isSP()
+    public boolean isMP()
     {
-        SP = this.mc.isSingleplayer();
-        return SP;
+        boolean MpOrSp;
+        MpOrSp = !this.mc.isSingleplayer();
+        return MpOrSp;
     }
 
-    public boolean WorldHandler()
+    public void PlayerList()
     {
-        if (SP)
+         //get the players
+        PL.clear();
+        for(EntityPlayer entityplayer : playerEntities)
         {
-
+            String playername = entityplayer.getCommandSenderName();
+            PL.add(playername);
         }
-        return MP;
     }
 
-    public void CapeIsFound()
-    {
-
-    }
 }
