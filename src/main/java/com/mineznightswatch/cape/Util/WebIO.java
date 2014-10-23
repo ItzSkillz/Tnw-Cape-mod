@@ -61,31 +61,6 @@ public class WebIO
         return CapesFound;
     }
 
-    public String GetTagFound(String playerName)
-    {
-        Tnw_Cape_Mod TNW = new Tnw_Cape_Mod();
-        String TagFound = null;
-        String url = references.MEMBERS_DIR + TNW.removeColorFromString(playerName);
-        try {
-            HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
-            con.setRequestMethod("HEAD");
-            con.setRequestProperty("User-agent", "MineCapes " + references.MOD_VERSION);
-            con.setRequestProperty("Java-Version", System.getProperty("java.version"));
-            con.setConnectTimeout(2000);
-            con.setUseCaches(false);
-
-            if (con.getResponseCode() == HttpURLConnection.HTTP_OK) TagFound = playerName;
-
-            con.disconnect();
-
-        } catch (Exception e) {
-            // Expected Failure if not a member
-            System.out.println("playerName: " + playerName);
-            TagFound = null;
-        }
-        return TagFound;
-    }
-
     public boolean CheckIfUser(String UserName)
     {
         boolean Member = false;

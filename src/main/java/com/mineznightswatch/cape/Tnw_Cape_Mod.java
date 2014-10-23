@@ -1,6 +1,7 @@
 package com.mineznightswatch.cape;
 
 import com.mineznightswatch.cape.Util.*;
+
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -8,6 +9,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
 import cpw.mods.fml.common.gameevent.TickEvent.Phase;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
@@ -29,27 +31,15 @@ public class Tnw_Cape_Mod {
     int CapeTick = 0;
     int CapeSweep = 20;
 
-    int MemberTick = 0;
-    int MemberSweep = 20;
-
     WebIO IO = new WebIO();
     Utils Ut = new Utils();
-    Minecraft mc = Minecraft.getMinecraft();
-
-    private ArrayList<String> Membersfound = new ArrayList<String>();
 
     private HashMap<String, ThreadDownloadImageData> CapeChecked = new HashMap<String, ThreadDownloadImageData>();
-    private ArrayList<String> CapeIgnored = new ArrayList<String>();
     private ArrayList<String> MembersIgnored = new ArrayList<String>();
     private ArrayList<String> MembersChecked = new ArrayList<String>();
-    private ArrayList<String> CapePlayers = new ArrayList<String>();
-    private ArrayList<String> MemberPlayers = new ArrayList<String>();
-
-    private boolean Multiplayer = Ut.isMP();
-    private boolean checked = false;
+    private ArrayList<String> Membersfound = new ArrayList<String>();
 
     boolean CapeChecking = false;
-    boolean MembersChecking = false;
 
     @Mod.Instance
     public static Tnw_Cape_Mod instance;
@@ -62,7 +52,7 @@ public class Tnw_Cape_Mod {
 
     @SubscribeEvent
     public void tick(ClientTickEvent event) {
-        if (event.phase == Phase.END && ShouldCheck())
+        if (event.phase == Phase.END && Ut.ShouldCheck())
         {
             ApplyCapes();
         }
@@ -84,7 +74,6 @@ public class Tnw_Cape_Mod {
         checkMembers();
     }
 
-
     public void ApplyCapes() {
         Minecraft mc = Minecraft.getMinecraft();
 
@@ -101,10 +90,8 @@ public class Tnw_Cape_Mod {
             final List<EntityPlayer> playerEntities = mc.theWorld.playerEntities; //get the players
 
 //            apply found cloaks / find players
-            CapePlayers.clear();
             for (EntityPlayer entityplayer : playerEntities) {
                 String playerName = entityplayer.getCommandSenderName();
-                CapePlayers.add(playerName);
 
                 ThreadDownloadImageData usersCape = CapeChecked.get(playerName);
 
@@ -126,7 +113,6 @@ public class Tnw_Cape_Mod {
                         e.printStackTrace();
                     }
 
-
                     // check if needs update
                     if (downloadImageCape != null && usersCape != currentCape) {
 
@@ -138,9 +124,7 @@ public class Tnw_Cape_Mod {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-
                     }
-
                 }
             }
 
@@ -148,7 +132,7 @@ public class Tnw_Cape_Mod {
             CapeChecking = true;
             Thread checkThread = new Thread() {
                 public void run() {
-                    checkCloakURLs(CapePlayers);
+                    checkCloakURLs(Ut.PL);
                     CapeChecking = false;
                 }
             };
@@ -158,47 +142,7 @@ public class Tnw_Cape_Mod {
         } else {
             CapeTick++;
         }
-
     }
-
-    /*private void updateMembersURLs()
-    {
-        if (MembersChecking) return;
-
-        if (MemberTick >= MemberSweep)
-        {
-            MemberTick = 0;
-
-            if (mc == null || mc.theWorld == null || mc.theWorld.playerEntities == null || mc.renderEngine == null)
-            {
-                return;
-            }
-
-            final List<EntityPlayer> playerEntities = mc.theWorld.playerEntities; //get the players
-
-           // apply found cloaks / find players
-            MemberPlayers.clear();
-            for (EntityPlayer entityplayer : playerEntities)
-            {
-                String playerName = entityplayer.getCommandSenderName();
-                MemberPlayers.add(playerName);
-
-                // run cloak find in another thread
-                CapeChecking = true;
-                Thread checkThread = new Thread()
-                {
-                    public void run()
-                    {
-                        checkMembersURLs(MemberPlayers);
-                        MembersChecking = false;
-                    }
-                };
-                checkThread.setPriority(Thread.MIN_PRIORITY);
-                checkThread.start();
-
-            }
-        }else MemberTick++;
-    }*/
 
     public String removeColorFromString(String string) {
         string = string.replaceAll("\\xa4\\w", "");
@@ -212,7 +156,7 @@ public class Tnw_Cape_Mod {
         WebIO Web = new WebIO();
         for (String playerName : playerNames) {
             String found = null;
-            if (CapeIgnored.contains(playerName) || CapeChecked.containsKey(playerName)) continue;
+            if (MembersIgnored.contains(playerName) || MembersChecked.contains(playerName)) break;
 
             LogHelper.info("[TNW] Found new player: " + playerName);
 
@@ -223,7 +167,7 @@ public class Tnw_Cape_Mod {
             }
 
             if (found == null) {
-                CapeIgnored.add(playerName);
+                MembersIgnored.add(playerName);
                 LogHelper.warn("[TNW] Could not find any cloak, ignoring ...");
 
             } else {
@@ -245,29 +189,12 @@ public class Tnw_Cape_Mod {
     {
         for (String playerName : Ut.PL) {
 
-            if (MembersIgnored.contains(playerName) || MembersChecked.contains(playerName)) break;
+            if (MembersIgnored.contains(playerName) || MembersChecked.contains(playerName) || Membersfound.contains(playerName) || MembersChecked.contains(playerName)) break;
             if(IO.CheckIfUser(playerName))
             {
                 Membersfound.add(playerName);
                 MembersChecked.add(playerName);
             }
-        }
-    }
-
-    private boolean ShouldCheck()
-    {
-        if (Multiplayer)
-        {
-            return true;
-        }
-        else if (!checked)
-        {
-            checked = true;
-            return true;
-        }
-        else
-        {
-            return false;
         }
     }
 }
