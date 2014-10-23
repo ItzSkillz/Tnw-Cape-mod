@@ -1,9 +1,6 @@
 package com.mineznightswatch.cape;
 
-import com.mineznightswatch.cape.Util.LogHelper;
-import com.mineznightswatch.cape.Util.Utils;
-import com.mineznightswatch.cape.Util.WebIO;
-import com.mineznightswatch.cape.Util.references;
+import com.mineznightswatch.cape.Util.*;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -22,8 +19,6 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
 import java.lang.reflect.Field;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,23 +31,25 @@ public class Tnw_Cape_Mod {
 
     int MemberTick = 0;
     int MemberSweep = 20;
-    WebIO IO = new WebIO();
 
+    WebIO IO = new WebIO();
+    Utils Ut = new Utils();
+    Minecraft mc = Minecraft.getMinecraft();
 
     private ArrayList<String> Membersfound = new ArrayList<String>();
 
     private HashMap<String, ThreadDownloadImageData> CapeChecked = new HashMap<String, ThreadDownloadImageData>();
-    private HashMap<String, ThreadDownloadImageData> MembersChecked = new HashMap<String, ThreadDownloadImageData>();
     private ArrayList<String> CapeIgnored = new ArrayList<String>();
     private ArrayList<String> MembersIgnored = new ArrayList<String>();
+    private ArrayList<String> MembersChecked = new ArrayList<String>();
     private ArrayList<String> CapePlayers = new ArrayList<String>();
     private ArrayList<String> MemberPlayers = new ArrayList<String>();
 
-    Minecraft mc = Minecraft.getMinecraft();
+    private boolean Multiplayer = Ut.isMP();
+    private boolean checked = false;
 
     boolean CapeChecking = false;
     boolean MembersChecking = false;
-    boolean MP;
 
     @Mod.Instance
     public static Tnw_Cape_Mod instance;
@@ -65,9 +62,9 @@ public class Tnw_Cape_Mod {
 
     @SubscribeEvent
     public void tick(ClientTickEvent event) {
-        if (event.phase == Phase.END && MP) {
-            updateCloakURLs();
-            updateMembersURLs();
+        if (event.phase == Phase.END && ShouldCheck())
+        {
+            ApplyCapes();
         }
     }
 
@@ -81,14 +78,14 @@ public class Tnw_Cape_Mod {
     }
 
     @SubscribeEvent
-    public void EntityJoinWOrldEvent(EntityJoinWorldEvent event)
+    public void EntityJoinWorldEvent(EntityJoinWorldEvent event)
     {
-        Utils UT = new Utils();
-        MP = !UT.isSP();
+        Ut.PlayerList();
+        checkMembers();
     }
 
 
-    public void updateCloakURLs() {
+    public void ApplyCapes() {
         Minecraft mc = Minecraft.getMinecraft();
 
         if (references.capeDIRs == null || references.capeDIRs.isEmpty()) return;
@@ -103,7 +100,7 @@ public class Tnw_Cape_Mod {
 
             final List<EntityPlayer> playerEntities = mc.theWorld.playerEntities; //get the players
 
-            // apply found cloaks / find players
+//            apply found cloaks / find players
             CapePlayers.clear();
             for (EntityPlayer entityplayer : playerEntities) {
                 String playerName = entityplayer.getCommandSenderName();
@@ -164,7 +161,7 @@ public class Tnw_Cape_Mod {
 
     }
 
-    private void updateMembersURLs()
+    /*private void updateMembersURLs()
     {
         if (MembersChecking) return;
 
@@ -201,7 +198,7 @@ public class Tnw_Cape_Mod {
 
             }
         }else MemberTick++;
-    }
+    }*/
 
     public String removeColorFromString(String string) {
         string = string.replaceAll("\\xa4\\w", "");
@@ -244,19 +241,33 @@ public class Tnw_Cape_Mod {
             }
         }
     }
-    protected void checkMembersURLs(List<String> PlayerNames)
+    protected void checkMembers()
     {
-        WebIO Web = new WebIO();
-        for (String playerName : PlayerNames) {
+        for (String playerName : Ut.PL) {
 
-            if (MembersIgnored.contains(playerName) || MembersChecked.containsKey(playerName)) continue;
+            if (MembersIgnored.contains(playerName) || MembersChecked.contains(playerName)) break;
+            if(IO.CheckIfUser(playerName))
+            {
+                Membersfound.add(playerName);
+                MembersChecked.add(playerName);
+            }
+        }
+    }
 
-            String PlayerNameFound;
-            PlayerNameFound = Web.GetTagFound(playerName);
-
-            Membersfound.add(PlayerNameFound);
-
-            if (Membersfound != null) break;
+    private boolean ShouldCheck()
+    {
+        if (Multiplayer)
+        {
+            return true;
+        }
+        else if (!checked)
+        {
+            checked = true;
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 }
