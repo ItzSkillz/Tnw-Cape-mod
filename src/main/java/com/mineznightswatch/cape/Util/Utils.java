@@ -11,6 +11,7 @@ public class Utils
     public ArrayList<String> PL = new ArrayList<String>();
     protected Minecraft mc;
     final List<EntityPlayer> playerEntities = mc.theWorld.playerEntities;
+    private boolean checked = false;
 
     public boolean isMP()
     {
@@ -27,6 +28,23 @@ public class Utils
         {
             String playername = entityplayer.getCommandSenderName();
             PL.add(playername);
+        }
+    }
+
+    public boolean ShouldCheck()
+    {
+        if (isMP())
+        {
+            return true;
+        }
+        else if (!checked)
+        {
+            checked = true;
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
