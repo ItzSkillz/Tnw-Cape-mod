@@ -41,7 +41,7 @@ public class WebIO
     {
         Tnw_Cape_Mod TNW = new Tnw_Cape_Mod();
         String CapesFound = null;
-        String CapesUrl = capeURLcheck + TNW.removeColorFromString(playerName) + ".png";
+        String CapesUrl = capeURLcheck + playerName + ".png";
         try {
             HttpURLConnection con = (HttpURLConnection) new URL(CapesUrl).openConnection();
             con.setRequestMethod("HEAD");
@@ -64,7 +64,7 @@ public class WebIO
     public boolean CheckIfUser(String UserName)
     {
         boolean Member = false;
-        String url = references.MEMBERS_DIR + Tnw_Cape_Mod.instance.removeColorFromString(UserName);
+        String url = references.MEMBERS_DIR + UserName;
         try
         {
             HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();

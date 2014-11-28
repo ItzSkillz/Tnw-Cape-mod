@@ -1,17 +1,19 @@
 package com.mineznightswatch.cape.Util;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Utils
 {
-    public ArrayList<String> PL = new ArrayList<String>();
     protected Minecraft mc;
-    final List<EntityPlayer> playerEntities = mc.theWorld.playerEntities;
     private boolean checked = false;
+    public ArrayList<String> PL = null;
+    public static boolean EntityIsMe = false;
 
     public boolean isMP()
     {
@@ -20,15 +22,24 @@ public class Utils
         return MpOrSp;
     }
 
-    public void PlayerList()
+    public void PlayerList(String Name)
     {
-         //get the players
-        PL.clear();
-        for(EntityPlayer entityplayer : playerEntities)
+        ArrayList<String> playerEntities = null;
+        if(!Name.equals(null))
         {
-            String playername = entityplayer.getCommandSenderName();
-            PL.add(playername);
+            if (Name.equals(mc.thePlayer.getName()))
+            {
+                EntityIsMe = true;
+                playerEntities.addAll(mc.theWorld.playerEntities);
+                playerEntities.clear();
+
+            } else
+            {
+                EntityIsMe = false;
+                playerEntities.add(Name);
+            }
         }
+        PL = playerEntities;
     }
 
     public boolean ShouldCheck()

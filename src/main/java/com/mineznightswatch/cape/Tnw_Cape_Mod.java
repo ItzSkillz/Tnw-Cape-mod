@@ -2,34 +2,27 @@ package com.mineznightswatch.cape;
 
 import com.mineznightswatch.cape.Util.*;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.ClientTickEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.Phase;
-
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.ThreadDownloadImageData;
-import net.minecraft.client.renderer.texture.ITextureObject;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 
-import java.lang.reflect.Field;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.Mod.Instance;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 @Mod(modid = references.MOD_ID, name = references.MOD_NAME, version = references.MOD_VERSION)
 public class Tnw_Cape_Mod {
 
-    int CapeTick = 0;
-    int CapeSweep = 20;
+    Minecraft mc;
 
     WebIO IO = new WebIO();
     Utils Ut = new Utils();
@@ -39,9 +32,8 @@ public class Tnw_Cape_Mod {
     private ArrayList<String> MembersChecked = new ArrayList<String>();
     private ArrayList<String> Membersfound = new ArrayList<String>();
 
-    boolean CapeChecking = false;
 
-    @Mod.Instance
+    @Instance
     public static Tnw_Cape_Mod instance;
 
     @EventHandler
@@ -51,15 +43,7 @@ public class Tnw_Cape_Mod {
     }
 
     @SubscribeEvent
-    public void tick(ClientTickEvent event) {
-        if (event.phase == Phase.END && Ut.ShouldCheck())
-        {
-            ApplyCapes();
-        }
-    }
-
-    @SubscribeEvent
-    public void NameFormat(PlayerEvent.NameFormat event)
+    public void NameFormat(PlayerEvent.NameFormat event) //TODO: check if this event does what i think i does
     {
         if ( Membersfound.contains(event.username))
         {
@@ -68,132 +52,48 @@ public class Tnw_Cape_Mod {
     }
 
     @SubscribeEvent
-    public void EntityJoinWorldEvent(EntityJoinWorldEvent event)
+    public void EntityJoinWorldEvent(EntityJoinWorldEvent event) //TODO: check when this even is fired
     {
-        Ut.PlayerList();
-        checkMembers();
+        Ut.PlayerList(event.entity.getName());
+        CheckMember(event.entity.getName());
     }
 
-    public void ApplyCapes() {
-        Minecraft mc = Minecraft.getMinecraft();
-
+    public void ApplyCape(String Username)
+    {
         if (references.capeDIRs == null || references.capeDIRs.isEmpty()) return;
-        if (CapeChecking) return;
+        if (mc == null || mc.theWorld == null || mc.theWorld.playerEntities == null || mc.renderEngine == null);
 
-        if (CapeTick >= CapeSweep) {
-            CapeTick = 0;
-
-            if (mc == null || mc.theWorld == null || mc.theWorld.playerEntities == null || mc.renderEngine == null) {
-                return;
-            }
-
-            final List<EntityPlayer> playerEntities = mc.theWorld.playerEntities; //get the players
-
-//            apply found cloaks / find players
-            for (EntityPlayer entityplayer : playerEntities) {
-                String playerName = entityplayer.getCommandSenderName();
-
-                ThreadDownloadImageData usersCape = CapeChecked.get(playerName);
-
-                if (usersCape != null) {
-
-                    AbstractClientPlayer aPlayer = (AbstractClientPlayer) entityplayer;
-                    ThreadDownloadImageData currentCape = null;
-                    Field downloadImageCape = null;
-
-                    // make cloak resource field accessible and get current cape
-                    try {
-                        downloadImageCape = AbstractClientPlayer.class.getDeclaredField("field_110315_c");
-
-                        if (!downloadImageCape.isAccessible()) downloadImageCape.setAccessible(true);
-
-                        currentCape = (ThreadDownloadImageData) downloadImageCape.get(aPlayer);
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    // check if needs update
-                    if (downloadImageCape != null && usersCape != currentCape) {
-
-                        LogHelper.info("[TNW] Applying (new) cape for: " + playerName);
-
-                        // set as users cloak resource
-                        try {
-                            downloadImageCape.set(aPlayer, usersCape);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-
-            // run cloak find in another thread
-            CapeChecking = true;
-            Thread checkThread = new Thread() {
-                public void run() {
-                    checkCloakURLs(Ut.PL);
-                    CapeChecking = false;
-                }
-            };
-            checkThread.setPriority(Thread.MIN_PRIORITY);
-            checkThread.start();
-
-        } else {
-            CapeTick++;
-        }
+        String url = references.MEMBERS_DIR + Username;
+        ThreadDownloadImageData object = new ThreadDownloadImageData(null, url, null, null);
+        Minecraft.getMinecraft().renderEngine.loadTexture(new ResourceLocation("cloaks/" + Username), object);
     }
 
-    public String removeColorFromString(String string) {
-        string = string.replaceAll("\\xa4\\w", "");
-        string = string.replaceAll("\\xa7\\w", "");
-
-        return string;
-    }
-
-    protected void checkCloakURLs(List<String> playerNames)
+    //TODO: look into better logic
+    private void CheckMember(String name)
     {
-        WebIO Web = new WebIO();
-        for (String playerName : playerNames) {
-            String found = null;
-            if (MembersIgnored.contains(playerName) || MembersChecked.contains(playerName)) break;
-
-            LogHelper.info("[TNW] Found new player: " + playerName);
-
-            for (String capeURLcheck : references.capeDIRs) {
-
-                found = Web.GetCapesUrl(playerName, capeURLcheck);
-                if (found!= null) break;
-            }
-
-            if (found == null) {
-                MembersIgnored.add(playerName);
-                LogHelper.warn("[TNW] Could not find any cloak, ignoring ...");
-
-            } else {
-                AbstractClientPlayer aPlayer = (AbstractClientPlayer) Minecraft.getMinecraft().theWorld.getPlayerEntityByName(playerName);
-
-                // get cloak
-                ResourceLocation resourcePackCloak = AbstractClientPlayer.getLocationCape(aPlayer.getCommandSenderName());
-
-                TextureManager texturemanager = Minecraft.getMinecraft().getTextureManager();
-                ThreadDownloadImageData object = new ThreadDownloadImageData(found, null, null);
-                texturemanager.loadTexture(resourcePackCloak, (ITextureObject) object);
-
-                CapeChecked.put(playerName, object);
-                LogHelper.info("[TNW] Found cloak: " + found);
-            }
-        }
-    }
-    protected void checkMembers()
-    {
-        for (String playerName : Ut.PL) {
-
-            if (MembersIgnored.contains(playerName) || MembersChecked.contains(playerName) || Membersfound.contains(playerName) || MembersChecked.contains(playerName)) break;
-            if(IO.CheckIfUser(playerName))
+        if (Utils.EntityIsMe)
+        {
+            for (String Names : Ut.PL)
             {
-                Membersfound.add(playerName);
-                MembersChecked.add(playerName);
+                if (MembersIgnored.contains(Names) || MembersChecked.contains(Names) || Membersfound.contains(Names) || MembersChecked.contains(Names))
+                    ;
+                if (IO.CheckIfUser(Names))
+                {
+                    ApplyCape(Names);
+
+                    Membersfound.add(Names);
+                    MembersChecked.add(Names);
+                }
+            }
+        } else
+        {
+            if (MembersIgnored.contains(name) || MembersChecked.contains(name) || Membersfound.contains(name) || MembersChecked.contains(name));
+            if (IO.CheckIfUser(name))
+            {
+                ApplyCape(name);
+
+                Membersfound.add(name);
+                MembersChecked.add(name);
             }
         }
     }
